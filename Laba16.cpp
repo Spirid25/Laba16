@@ -391,8 +391,8 @@ void LoadBinary() {
 void AddWallLeftOfPlayer() {
     for (int i = 0; i < N; i++) {
         for (int j = 1; j < M; j++) {
-            if (map[i][j] == 1) { 
-                if (map[i][j - 1] == 0) { 
+            if (map[i][j] == 1) {
+                if (map[i][j - 1] == 0) {
                     map[i][j - 1] = 2;
                 }
             }
@@ -401,10 +401,10 @@ void AddWallLeftOfPlayer() {
 }
 void AddGoldRightOfPlayer() {
     for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M - 1; j++) { 
-            if (map[i][j] == 1) { 
-                if (map[i][j + 1] == 0) { 
-                    map[i][j + 1] = 3; 
+        for (int j = 0; j < M - 1; j++) {
+            if (map[i][j] == 1) {
+                if (map[i][j + 1] == 0) {
+                    map[i][j + 1] = 3;
                 }
             }
         }
@@ -449,11 +449,31 @@ void DestroyWallsRightOfPlayer() {
         for (int j = M - 1; j >= 0; j--) {
             if (map[i][j] == 1) {
                 for (int k = j + 1; k < M; k++) {
-                    if (map[i][k] == 2) { 
+                    if (map[i][k] == 2) {
                         map[i][k] = 0;
                     }
                 }
-                return; 
+                return;
+            }
+        }
+    }
+}
+
+void doMidasHand(int i, int j) {
+    if (a[i][j] == 2) { // 2 - стена
+        a[i][j] = 1; // 1 - золото
+        if (i > 0) doMidasHand(i - 1, j);
+        if (i < N - 1) doMidasHand(i + 1, j);
+        if (j > 0) doMidasHand(i, j - 1);
+        if (j < M - 1) doMidasHand(i, j + 1);
+    }
+}
+
+void midasHandToRight() {
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < M - 1; ++j) {
+            if (a[i][j] == 3 && a[i][j + 1] == 2) {
+                doMidasHand(i, j + 1);
             }
         }
     }
@@ -484,6 +504,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case WM_KEYDOWN:
             switch (wParam)
             {
+            case 0x4d: // M
+                midasHandToRight();
+                InvalidateRect(hWnd, NULL, TRUE);
+                break;
             case VK_DOWN:
                 Down();
                 InvalidateRect(hWnd, NULL, TRUE);
